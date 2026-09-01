@@ -1,0 +1,152 @@
+# ============================================================
+# Real-data 4-sequence 3D ResNet configuration
+# ============================================================
+
+project:
+  dir: "/mnt/f/Marion_data/EGD"
+
+# ============================================================
+# Paths
+# ============================================================
+paths:
+  # Original MRI path table + split information
+  mri_paths_xlsx: "MRI_paths.xlsx"
+  split_xlsx: "Master_data_SW_split.xlsx"
+
+  # Generated files used by ResNet
+  train_validation_xlsx: "train_validation_Grade_checked.xlsx"
+  test_xlsx: "test_Grade_checked.xlsx"
+
+  # ResNet outputs
+  output_dir: "DL_results_real"
+
+  # No pretrained weights for first real-data run
+  pretrained_checkpoint: null
+
+
+# ============================================================
+# Excel columns
+# ============================================================
+columns:
+  case: "case"
+  split: "Split"
+  target: "Grade"
+
+  image_columns:
+    - "T1"
+    - "T2"
+    - "FLAIR"
+    - "T1GD"
+
+  mask_column: "MASK"
+
+
+# ============================================================
+# Train/test split
+# ============================================================
+split:
+  # MRI_paths.xlsx sheet containing the wide path table
+  mri_paths_sheet: "Paths"
+
+  # 0 = first sheet in data_split.xlsx
+  split_sheet: 0
+
+  # Values appearing in the split column of data_split.xlsx
+  train_validation_label: "Train"
+  test_label: "Test"
+
+  # No need to keep split column in final ResNet Excel files
+  keep_split_column: false
+
+target_cleaning:
+  invalid_values:
+    - "Unknown"
+
+  drop_missing: true
+
+  output_suffix: "_checked"
+
+# ============================================================
+# Model
+# ============================================================
+model:
+  depth: 10
+  num_classes: 2
+  dropout: 0.20
+
+  initialization: "random"
+  use_pretrained: false
+
+  freeze_encoder_epochs: 0
+  adapt_pretrained_input_channels: true
+
+
+# ============================================================
+# Image preprocessing
+# ============================================================
+input:
+  output_size:
+    - 48
+    - 96
+    - 96
+
+  normalization: "zscore_mask"
+
+  apply_mask: true
+  crop_to_mask: true
+
+  crop_margin_voxels:
+    - 6
+    - 12
+    - 12
+
+  augmentation:
+    random_flip_probability: 0.5
+    gaussian_noise_std: 0.01
+
+
+# ============================================================
+# Training
+# ============================================================
+training:
+  random_state: 42
+
+  validation_fraction: 0.20
+
+  epochs: 100
+  batch_size: 20
+  num_workers: 8
+
+  learning_rate: 0.0001
+  weight_decay: 0.00001
+
+  optimizer: "adamw"
+  scheduler: "cosine"
+
+  class_weight: "balanced"
+
+  early_stopping_patience: 15
+  min_delta: 0.0001
+
+  mixed_precision: true
+
+  threshold_mode: "youden"
+  fixed_threshold: 0.5
+
+
+# ============================================================
+# Evaluation
+# ============================================================
+evaluation:
+  bootstrap_iterations: 2000
+  ci_level: 0.95
+
+  save_roc_curve: true
+  save_confusion_matrix: true
+
+
+# ============================================================
+# Runtime
+# ============================================================
+runtime:
+  device: "auto"
