@@ -1,0 +1,15 @@
+numpy==1.26.4
+pandas>=1.5,<3
+scipy>=1.9,<2
+scikit-learn==1.5.2
+matplotlib>=3.6,<4
+openpyxl>=3.1,<4
+PyYAML>=6,<7
+SimpleITK>=2.2,<3
+PyWavelets>=1.4,<2
+jupyter>=1,<2
+ipykernel>=6,<7
+
+# PyRadiomics is preferably installed through conda channel "radiomics".
+# If needed, after installing NumPy 1.26.4 and build dependencies:
+#pyradiomics==3.0.1
